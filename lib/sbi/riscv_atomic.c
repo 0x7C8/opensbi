@@ -212,60 +212,12 @@ unsigned long atomic_raw_xchg_ulong(volatile unsigned long *ptr,
 	({                                                               \
 		unsigned long __res, __mask;                                 \
 		__mask = BIT_MASK(nr);                                       \
-		switch(op)			\
-		{					\
-			case #swap:		\
-				__asm__ __volatile__("   lw %0, %1\n"	 	\
-				"   sw %2, %1"							 	\
-			     : "=r"(__res), "+A"(addr[BIT_WORD(nr)]) 	\
-			     : "r"(mod(__mask))                      	\
-			     : "memory");								\
-				break;										\
-			case #min:										\
-				__asm__ __volatile__("   lw %0, %1\n"		\
-				"   blt %0, %2, 1f\n"						\
-				"   mv %0, %2\n"							\
-				"1: sw %0, %1"								\
-			     : "=r"(__res), "+A"(addr[BIT_WORD(nr)]) 	\
-			     : "r"(mod(__mask))                      	\
-			     : "memory");								\
-				break;										\
-			case #max:										\
-				__asm__ __volatile__("   lw %0, %1\n"		\
-				"   bge %0, %2, 1f\n"						\
-				"   mv %0, %2\n"							\
-				"1: sw %0, %1"								\
-			     : "=r"(__res), "+A"(addr[BIT_WORD(nr)]) 	\
-			     : "r"(mod(__mask))                      	\
-			     : "memory");								\
-				break;										\
-			case #minu:										\
-				__asm__ __volatile__("   lw %0, %1\n"		\
-				"   bltu %0, %2, 1f\n"						\
-				"   mv %0, %2\n"							\
-				"1: sw %0, %1"								\
-			     : "=r"(__res), "+A"(addr[BIT_WORD(nr)]) 	\
-			     : "r"(mod(__mask))                      	\
-			     : "memory");								\
-				break;										\
-			case #maxu:										\
-				__asm__ __volatile__("   lw %0, %1\n"		\
-				"   bgeu %0, %2, 1f\n"						\
-				"   mv %0, %2\n"							\
-				"1: sw %0, %1"								\
-			     : "=r"(__res), "+A"(addr[BIT_WORD(nr)]) 	\
-			     : "r"(mod(__mask))                      	\
-			     : "memory");								\
-				break;										\
-			default:										\
-				__asm__ __volatile__("   lw %0, %1\n"		\
-				"   " #op " %0, %0, %2\n"					\
-				"   sw %0, %1"						 		\
-			     : "=r"(__res), "+A"(addr[BIT_WORD(nr)]) 	\
-			     : "r"(mod(__mask))                      	\
-			     : "memory");								\
-				break;										\
-		}													\
+		__asm__ __volatile__("   lw %0, %1\n"		\
+			"   " #op " %0, %0, %2\n"					\
+			"   sw %0, %1"						 		\
+			 : "=r"(__res), "+A"(addr[BIT_WORD(nr)]) 	\
+			 : "r"(mod(__mask))                      	\
+			 : "memory");								\
 		__res;         				 						\
 	})
 
