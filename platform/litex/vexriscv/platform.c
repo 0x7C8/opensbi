@@ -18,7 +18,7 @@
 #include <sbi_utils/serial/litex-uart.h>
 #include <sbi_utils/timer/aclint_mtimer.h>
 
-#define VEX_DEFAULT_HART_COUNT	8
+#define VEX_DEFAULT_HART_COUNT	1
 #define VEX_DEFAULT_PLATFORM_FEATURES	SBI_PLATFORM_HAS_MFAULTS_DELEGATION
 #define VEX_DEFAULT_UART_ADDR	0xf0001000
 #define VEX_DEFAULT_PLIC_ADDR	0xf0c00000
