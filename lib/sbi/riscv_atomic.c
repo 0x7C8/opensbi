@@ -29,7 +29,8 @@ long atomic_add_return(atomic_t *atom, long value)
 {
 	long ret;
 #if __SIZEOF_LONG__ == 4
-	__asm__ __volatile__("	amoadd.w.aqrl  %1, %2, %0"
+	__asm__ __volatile__("   lw %1, %0\n"
+            	"   sw %2, %0"
 			     : "+A"(atom->counter), "=r"(ret)
 			     : "r"(value)
 			     : "memory");
@@ -55,7 +56,8 @@ long atomic_sub_return(atomic_t *atom, long value)
 		switch (size) {							\
 		case 4:								\
 			__asm__ __volatile__ (					\
-				"	amoswap.w.aqrl %0, %2, %1\n"		\
+			    "   lw %0, %1\n"             \
+            	"   sw %2, %1\n"             \
 				: "=r" (__ret), "+A" (*__ptr)			\
 				: "r" (__new)					\
 				: "memory");					\
@@ -88,9 +90,8 @@ long atomic_sub_return(atomic_t *atom, long value)
 		register unsigned int __rc;                               \
 		switch (size) {                                           \
 		case 4:                                                   \
-			__asm__ __volatile__("0:	lr.w %0, %2\n"    \
-					     "	sc.w.rl %1, %z3, %2\n"    \
-					     "	bnez %1, 0b\n"            \
+			__asm__ __volatile__("0:	lw %0, %2\n"    \
+					     "	sw %z3, %2\n"    \
 					     "	fence rw, rw\n"           \
 					     : "=&r"(__ret), "=&r"(__rc), \
 					       "+A"(*__ptr)               \
@@ -128,10 +129,9 @@ long atomic_sub_return(atomic_t *atom, long value)
 		register unsigned int __rc;                               \
 		switch (size) {                                           \
 		case 4:                                                   \
-			__asm__ __volatile__("0:	lr.w %0, %2\n"    \
+			__asm__ __volatile__("0:	lw %0, %2\n"    \
 					     "	bne  %0, %z3, 1f\n"       \
-					     "	sc.w.rl %1, %z4, %2\n"    \
-					     "	bnez %1, 0b\n"            \
+					     "	sw %z4, %2\n"    			\
 					     "	fence rw, rw\n"           \
 					     "1:\n"                       \
 					     : "=&r"(__ret), "=&r"(__rc), \
