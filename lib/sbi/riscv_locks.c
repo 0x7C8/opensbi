@@ -22,7 +22,7 @@ bool spin_lock_check(spinlock_t *lock)
 bool spin_trylock(spinlock_t *lock)
 {
 	// Does not exist
-	return l0 == 0;
+	return true;
 }
 
 void spin_lock(spinlock_t *lock)
