@@ -27,7 +27,7 @@ bool spin_trylock(spinlock_t *lock)
 
 	__asm__ __volatile__(
 		/* Get the current lock counters. */
-		"1:	lr.w.aq	%0, %3\n"
+		"1:	lw	%0, %3\n"
 		"	slli	%2, %0, %6\n"
 		"	and	%2, %2, %5\n"
 		"	and	%1, %0, %5\n"
@@ -35,8 +35,7 @@ bool spin_trylock(spinlock_t *lock)
 		"	bne	%1, %2, 2f\n"
 		"	add	%0, %0, %4\n"
 		/* Acquire the lock. */
-		"	sc.w.rl	%0, %0, %3\n"
-		"	bnez	%0, 1b\n"
+		"	sw	%0, %3\n"
 		"2:"
 		: "=&r"(l0), "=&r"(tmp1), "=&r"(tmp2), "+A"(*lock)
 		: "r"(inc), "r"(mask), "I"(TICKET_SHIFT)
@@ -53,7 +52,9 @@ void spin_lock(spinlock_t *lock)
 
 	__asm__ __volatile__(
 		/* Atomically increment the next ticket. */
-		"	amoadd.w.aqrl	%0, %4, %3\n"
+		"	lw	%0, %3\n"
+		"	add	%0, %0, %4\n"
+		"	sw	%0, %3\n"
 
 		/* Did we get the lock? */
 		"	srli	%1, %0, %6\n"
